@@ -1,17 +1,18 @@
 ## 2hats NodeJS Assessment by William Clifford
-### `npm i and npm start:`
+### `to run the server`
+## `npm i and npm start:`
 
 <br>
 
-### `Directions:`
-
-All appointments are 40 minutes long and have fixed times, starting from 9–9:40am, with a 5 minute break between appointments
-Appointments can only be booked during weekdays from 9 am to 6 pm
-Bookings can only be made at least 24 hours in advance
-Appointments cannot be booked in the past
-All bookings use UTC time
+### `Description:`
+App is a booking system that uses the google calendar API
+Allows users to view available timeslots and book appointments.
+All appointments are 40 minutes long and have fixed times, starting from 9–9:40am, with a 5 minute break between appointments.
+Appointments can only be booked during weekdays between 9am and 6pm
+Bookings can only be made at least 24 hours in advance.
+All bookings use UTC time.
 <br>
-## `Once the server is running`:
+## `Once the server is running:`
 <br>
 ## `http://localhost:3000/timeslots?year=yyyy&month=mm&day=dd`
 Will show all the available timeslots of the day
