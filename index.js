@@ -3,8 +3,8 @@ const readline = require('readline');
 const {google} = require('googleapis');
 const express = require("express")
 const app = express();
-const getTimeslotsForDay = require('./getTimeslots')
-const bookAppointment = require('./bookAppointment')
+const getTimeslotsForDay = require('./utils/getTimeslots')
+const bookAppointment = require('./utils/bookAppointment')
 const validateBookAppointment = require("./utils/validateBookAppointment")
 
 // If modifying these scopes, delete token.json.
@@ -140,6 +140,8 @@ app.post('/book', async (req, res) => {
         })
     }
 })
+
+
 
 
 const PORT = process.env.PORT || 3000;

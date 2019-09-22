@@ -1,10 +1,12 @@
 const {google} = require('googleapis');
 
 
-module.exports = function getTimeslotsForDay(auth, year, month, day) {
+module.exports = async function getTimeslotsForDay(auth, year, month, day) {
+    
     
     return new Promise(function(resolve, reject) {
-
+        
+        
         const appointmentTimes = [
             {startTime: `${year}-${month}-${day}T09:00:00.000Z`, endTime: `${year}-${month}-${day}T09:40:00.000Z`},
             {startTime: `${year}-${month}-${day}T09:45:00.000Z`, endTime: `${year}-${month}-${day}T10:25:00.000Z`},
@@ -20,11 +22,22 @@ module.exports = function getTimeslotsForDay(auth, year, month, day) {
             {startTime: `${year}-${month}-${day}T17:15:00.000Z`, endTime: `${year}-${month}-${day}T17:55:00.000Z`}
         ]
 
+
+        const twentyFourHoursFuture = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/)
+        let newapps = []
+
+        for(let i = 0; i < appointmentTimes.length; i++){
+            if (new Date(appointmentTimes[i].startTime) >= twentyFourHoursFuture){
+                newapps.push(appointmentTimes[i])
+            }
+        }
+
+
         let timeslots = {
             success: Boolean,
-            timeslots: appointmentTimes
+            timeslots: newapps
         }
-    
+
 
         const calendar = google.calendar({ version: "v3", auth });
         calendar.events.list(
@@ -54,6 +67,7 @@ module.exports = function getTimeslotsForDay(auth, year, month, day) {
                         }
                     }
                 }
+
                 resolve(timeslots)
             }
         });
