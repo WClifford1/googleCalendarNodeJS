@@ -1,10 +1,10 @@
 module.exports = function validateBookAppointment( year, month, day, hour, minute ){
 
-    // Appointment must be at least 24 hours in advance
     const date = new Date()
     const proposedTimeOfBooking = new Date(Date.UTC(year, month - 1, day, hour, minute))  
     const twentyFourHoursFuture = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/)
 
+    // Appointment must not be in the past
     if (proposedTimeOfBooking < date) {
         return {
             "success": false,
@@ -12,6 +12,7 @@ module.exports = function validateBookAppointment( year, month, day, hour, minut
         }
     }
 
+    // Appointment must not be less than 24 hours in the future
     if (proposedTimeOfBooking <= twentyFourHoursFuture && proposedTimeOfBooking > date) {
         return {
             "success": false,
