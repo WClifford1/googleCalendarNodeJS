@@ -1,13 +1,21 @@
 module.exports = function validateBookAppointment( year, month, day, hour, minute ){
 
     // Appointment must be at least 24 hours in advance
+    const date = new Date()
     const proposedTimeOfBooking = new Date(Date.UTC(year, month - 1, day, hour, minute))  
     const twentyFourHoursFuture = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/)
 
-    if (proposedTimeOfBooking <= twentyFourHoursFuture) {
+    if (proposedTimeOfBooking < date) {
         return {
             "success": false,
-            "message": "Appointments have to be made at least 24 hours in advance"            
+            "message": "Cannot book time in the past"            
+        }
+    }
+
+    if (proposedTimeOfBooking <= twentyFourHoursFuture && proposedTimeOfBooking > date) {
+        return {
+            "success": false,
+            "message": "Cannot book with less than 24 hours in advance"            
         }
     }
 
@@ -15,7 +23,7 @@ module.exports = function validateBookAppointment( year, month, day, hour, minut
     else if (proposedTimeOfBooking.getDay() === 6 || proposedTimeOfBooking.getDay() === 0) {
         return {
             "success": false,
-            "message": "Appointments can only be made on a weekday"
+            "message": "Cannot book outside bookable timeframe: The time slot provided was not on a weekday between 9 am and 6 pm"
         }
     }
     else {

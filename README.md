@@ -1,6 +1,6 @@
 ## 2hats NodeJS Assessment by William Clifford
 
-## `npm i and npm start`
+## `npm i and node .`
 
 ### `Description:`
 This app is an appointment booking system that uses the Google Calendar API.<br>

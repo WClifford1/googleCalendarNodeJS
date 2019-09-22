@@ -73,7 +73,7 @@ function getAccessToken(oAuth2Client, callback) {
 }
 
 
-
+// Get the timeslots for the day
 // timeslots?year=yyyy&month=mm&day=dd
 app.get('/timeslots', (req, res) => {
     const { year, month, day } = req.query
@@ -83,15 +83,19 @@ app.get('/timeslots', (req, res) => {
     })
 })
 
-
+// Get the availble days for the month
 // /days?year=yyyy&month=mm
 app.get('/days', async (req, res) => {
     const { year, month } = req.query
+    // date will be the highest date of the month, i.e. Janurary will be 31
     let date = new Date(year, month, 0).getDate();
     let message = {
         "success": true,
         "days": []
     }
+
+    // For each day of the month get the avaible timeslots for the day
+    // If the day does not have any avaible timeslots set hasTimeSlots to false
     for(let i = 0; i < date; i++){
         await getTimeslotsForDay(oAuth2Client, year, month, i + 1)
         .then(function(timeslots) {
@@ -106,14 +110,17 @@ app.get('/days', async (req, res) => {
 })
 
 
+// Book and appointment
 // /book?year=yyyy&month=MM&day=dd&hour=hh&minute=mm
 app.post('/book', async (req, res) => {
     const { year, month, day, hour, minute } = req.query
 
+    // Validate the params
     if (await validateBookAppointment(year, month, day, hour, minute)) {
         res.status(400).send(validateBookAppointment(year, month, day, hour, minute))
         return
     }
+    
     // Check if the timeslot is free
     const date = new Date(Date.UTC(year, month - 1, day, hour, minute))
     let bookingAlreadyExists = true
@@ -129,7 +136,7 @@ app.post('/book', async (req, res) => {
         res.status(400).send(
             {
                 "success": false,
-                "message": "Invalid timeslot"
+                "message": "Invalid time slot"
             }
         )
         return
