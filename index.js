@@ -5,7 +5,7 @@ const express = require("express")
 const app = express();
 const getTimeslotsForDay = require('./getTimeslots')
 const bookAppointment = require('./bookAppointment')
-// const getBookableDays = require('./getBookableDays')
+const validateBookAppointment = require("./utils/validateBookAppointment")
 
 // If modifying these scopes, delete token.json.
 const SCOPES = [
@@ -73,40 +73,15 @@ function getAccessToken(oAuth2Client, callback) {
 }
 
 
-function getBookings(auth) {
-    return new Promise(function(resolve, reject){
-    const calendar = google.calendar({ version: "v3", auth });
-    calendar.events.list(
-    {
-        calendarId: "primary",
-        singleEvents: true,
-        orderBy: "startTime",
-        // timeMin: "2019-09-26T10:30:00.000Z",
-        // timeMax: "2019-09-26T11:10:00.000Z",
-        timeZone: "UTC"
-    },
-    (err, res) => {
-        if (err) {
-            console.log("ERROR:", err)
-            reject(err)
-        }
-        const events = res.data.items;
-        console.log("EVENTS", events);
-        }
-        );
-    });
-};
-
 
 // timeslots?year=yyyy&month=mm&day=dd
 app.get('/timeslots', (req, res) => {
     const { year, month, day } = req.query
     getTimeslotsForDay(oAuth2Client, year, month, day)
     .then(function(timeslots) {
-        res.send(timeslots)
+        res.status(200).send(timeslots)
     })
 })
-
 
 
 // /days?year=yyyy&month=mm
@@ -116,28 +91,54 @@ app.get('/days', async (req, res) => {
     let message = {
         "success": true,
         "days": []
-      }
+    }
     for(let i = 0; i < date; i++){
         await getTimeslotsForDay(oAuth2Client, year, month, i + 1)
         .then(function(timeslots) {
-            if (timeslots.length < 12 ){
-                message.days.push({"day": i + 1, "hasTimeSlots": true})
+            if (timeslots.timeslots.length < 1 ){
+                message.days.push({"day": i + 1, "hasTimeSlots": false})
             } else {
                 message.days.push({"day": i + 1, "hasTimeSlots": true})
             }
         })
     }
-    res.send(message)
+    res.status(200).send(message)
 })
 
 
 // /book?year=yyyy&month=MM&day=dd&hour=hh&minute=mm
-app.post('/book', (req, res) => {
+app.post('/book', async (req, res) => {
     const { year, month, day, hour, minute } = req.query
-    bookAppointment(oAuth2Client, year, month, day, hour, minute)
-    .then(function(result) {
-        res.send(result)
+
+    if (await validateBookAppointment(year, month, day, hour, minute)) {
+        res.status(400).send(validateBookAppointment(year, month, day, hour, minute))
+        return
+    }
+    // Check if the timeslot is free
+    const date = new Date(Date.UTC(year, month - 1, day, hour, minute))
+    let bookingAlreadyExists = true
+    await getTimeslotsForDay(oAuth2Client, year, month, day)
+    .then(function(timeslots) {
+        for(let i = 0; i < timeslots.timeslots.length; i++){
+            if (timeslots.timeslots[i].startTime === date.toISOString()){
+            bookingAlreadyExists = false
+            }
+        }
     })
+    if (bookingAlreadyExists === true){
+        res.status(400).send(
+            {
+                "success": false,
+                "message": "Invalid timeslot"
+            }
+        )
+        return
+    } else {
+        bookAppointment(oAuth2Client, year, month, day, hour, minute)
+        .then(function(message) {
+            res.status(200).send(message)
+        })
+    }
 })
 
 
@@ -146,51 +147,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// /**
-//  * Lists the next 10 events on the user's primary calendar.
-//  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
-//  */
-// function listEvents(auth) {
-//   const calendar = google.calendar({version: 'v3', auth});
-//   calendar.events.list({
-//     calendarId: 'primary',
-//     timeMin: (new Date()).toISOString(),
-//     maxResults: 10,
-//     singleEvents: true,
-//     orderBy: 'startTime',
-//   }, (err, res) => {
-//     if (err) return console.log('The API returned an error: ' + err);
-//     const events = res.data.items;
-//     if (events.length) {
-//       console.log('Upcoming 10 events:');
-//       events.map((event, i) => {
-//         const start = event.start.dateTime || event.start.date;
-//         console.log(`${start} - ${event.summary}`);
-//       });
-//     } else {
-//       console.log('No upcoming events found.');
-//     }
-//   });
-// }

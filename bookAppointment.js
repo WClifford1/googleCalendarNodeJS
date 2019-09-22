@@ -1,12 +1,13 @@
 const {google} = require('googleapis');
 
-
 module.exports = function bookAppointment(auth, year, month, day, hour, minute) {
 
 return new Promise(function(resolve, reject) {
     let startTime = new Date(Date.UTC(year, month - 1, day, hour, minute))
     let finishTime = new Date(Date.UTC(year, month -1, day, hour, minute))
     finishTime.setMinutes(finishTime.getMinutes() + 40)
+
+    let message = {}
 
     const calendar = google.calendar({ version: "v3", auth });
 
@@ -27,10 +28,14 @@ return new Promise(function(resolve, reject) {
 
         (err, res) => {
             if (err) {
-                reject(err);
+                message.success = false
+                message.message = "Invalid booking time"
+                resolve(message);
             } else {
-                const booking = `Event created from ${startTime.toISOString()} to ${finishTime.toISOString()}`
-                resolve(booking);
+                message.success = true
+                message.startTime = startTime.toISOString()
+                message.endTime = finishTime.toISOString()
+                resolve(message);
             }
             }
         );
