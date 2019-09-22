@@ -13,19 +13,19 @@ Bookings can only be made at least 24 hours in advance.<br>
 All bookings use UTC time.<br>
 <br>
 
-## `Once the server is running:`
+#### `Once the server is running:`
 <br>
 
-## `http://localhost:3000/timeslots?year=yyyy&month=mm&day=dd`
+#### `http://localhost:3000/timeslots?year=yyyy&month=mm&day=dd`
 Will show all the available timeslots of the day
 <br>
 <br>
 
-## `http://localhost:3000/days?year=yyyy&month=mm`
+#### `http://localhost:3000/days?year=yyyy&month=mm`
 Will show all days of the month that currently have available timeslots
 <br>
 <br>
 
-## `http://localhost:3000/book?year=yyyy&month=mm&day=dd&hour=hh&minute=mm`
+#### `http://localhost:3000/book?year=yyyy&month=mm&day=dd&hour=hh&minute=mm`
 Will create a event in the calendar providing that the timeslot is available and is not taken
 <br>
