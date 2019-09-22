@@ -1,12 +1,10 @@
 const {google} = require('googleapis');
 
-
 module.exports = async function getTimeslotsForDay(auth, year, month, day) {
-    
     
     return new Promise(function(resolve, reject) {
         
-        
+        // Hardcoded all the appointment timeslots
         const appointmentTimes = [
             {startTime: `${year}-${month}-${day}T09:00:00.000Z`, endTime: `${year}-${month}-${day}T09:40:00.000Z`},
             {startTime: `${year}-${month}-${day}T09:45:00.000Z`, endTime: `${year}-${month}-${day}T10:25:00.000Z`},
@@ -22,22 +20,19 @@ module.exports = async function getTimeslotsForDay(auth, year, month, day) {
             {startTime: `${year}-${month}-${day}T17:15:00.000Z`, endTime: `${year}-${month}-${day}T17:55:00.000Z`}
         ]
 
-
+        // Remove timeslots that are not more than 24 hours in advance 
         const twentyFourHoursFuture = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/)
-        let newapps = []
-
+        let updatedAppointmentTimes = []
         for(let i = 0; i < appointmentTimes.length; i++){
             if (new Date(appointmentTimes[i].startTime) >= twentyFourHoursFuture){
-                newapps.push(appointmentTimes[i])
+                updatedAppointmentTimes.push(appointmentTimes[i])
             }
         }
 
-
         let timeslots = {
             success: Boolean,
-            timeslots: newapps
+            timeslots: updatedAppointmentTimes
         }
-
 
         const calendar = google.calendar({ version: "v3", auth });
         calendar.events.list(
@@ -59,6 +54,7 @@ module.exports = async function getTimeslotsForDay(auth, year, month, day) {
                 timeslots.success = true
                 const events = res.data.items
 
+                // Remove any current bookings from timeslots
                 for(let i = 0; i < events.length; i++){
                     for(let j = 0; j < timeslots.timeslots.length; j++){
                     let time = new Date(events[i].start.dateTime)
@@ -67,7 +63,6 @@ module.exports = async function getTimeslotsForDay(auth, year, month, day) {
                         }
                     }
                 }
-
                 resolve(timeslots)
             }
         });

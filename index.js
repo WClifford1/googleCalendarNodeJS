@@ -83,6 +83,7 @@ app.get('/timeslots', (req, res) => {
     })
 })
 
+
 // Get the availble days for the month
 // /days?year=yyyy&month=mm
 app.get('/days', async (req, res) => {
@@ -132,6 +133,7 @@ app.post('/book', async (req, res) => {
             }
         }
     })
+    // Sends an error if the appointment time has already been booked
     if (bookingAlreadyExists === true){
         res.status(400).send(
             {
@@ -147,8 +149,6 @@ app.post('/book', async (req, res) => {
         })
     }
 })
-
-
 
 
 const PORT = process.env.PORT || 3000;

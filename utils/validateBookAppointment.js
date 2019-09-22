@@ -21,7 +21,7 @@ module.exports = function validateBookAppointment( year, month, day, hour, minut
     }
 
     // Appointment must not be on a weekday
-    else if (proposedTimeOfBooking.getDay() === 6 || proposedTimeOfBooking.getDay() === 0) {
+    else if (proposedTimeOfBooking.getDay() === 6 || proposedTimeOfBooking.getDay() === 0 || proposedTimeOfBooking.getUTCHours() < 9 || proposedTimeOfBooking.getUTCHours() > 17) {
         return {
             "success": false,
             "message": "Cannot book outside bookable timeframe: The time slot provided was not on a weekday between 9 am and 6 pm"

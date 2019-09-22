@@ -3,6 +3,7 @@ const {google} = require('googleapis');
 module.exports = function bookAppointment(auth, year, month, day, hour, minute) {
 
 return new Promise(function(resolve, reject) {
+    // Make the finish time 40 minutes after the start time
     let startTime = new Date(Date.UTC(year, month - 1, day, hour, minute))
     let finishTime = new Date(Date.UTC(year, month -1, day, hour, minute))
     finishTime.setMinutes(finishTime.getMinutes() + 40)
@@ -10,22 +11,20 @@ return new Promise(function(resolve, reject) {
     let message = {}
 
     const calendar = google.calendar({ version: "v3", auth });
-
-        const event = {
-            start: {
-                dateTime: startTime.toISOString()
-            },
-            end: {
-                dateTime: finishTime.toISOString()
-            }
-        };
+    const event = {
+        start: {
+            dateTime: startTime.toISOString()
+        },
+        end: {
+            dateTime: finishTime.toISOString()
+        }
+    };
     calendar.events.insert(
         {
             auth: auth,
             calendarId: "primary",
             resource: event
         },
-
         (err, res) => {
             if (err) {
                 message.success = false
@@ -41,4 +40,3 @@ return new Promise(function(resolve, reject) {
         );
     });
 }
-
