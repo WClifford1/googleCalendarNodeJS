@@ -47,20 +47,20 @@ router.post('/', async (req, res) => {
         }
     })
     // Sends an error if the appointment time has already been booked
-    if (bookingAlreadyExists === true){
-        res.status(400).send(
-            {
-                "success": false,
-                "message": "Invalid time slot"
-            }
-        )
-        return
-    } else {
+    // if (bookingAlreadyExists === true){
+    //     res.status(400).send(
+    //         {
+    //             "success": false,
+    //             "message": "Invalid time slot"
+    //         }
+    //     )
+    //     return
+    // } else {
         bookAppointment(oAuth2Client, year, month, day, hour, minute)
         .then(function(message) {
             res.status(200).send(message)
         })
-    }
+    // }
 })
 
 
