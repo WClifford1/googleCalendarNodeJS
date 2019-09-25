@@ -3,9 +3,7 @@ const readline = require('readline');
 const {google} = require('googleapis');
 const express = require("express")
 const app = express();
-const getTimeslotsForDay = require('./utils/getTimeslots')
-const bookAppointment = require('./utils/bookAppointment')
-const validateBookAppointment = require("./utils/validateBookAppointment")
+require('./routes/routes')(app)
 
 // If modifying these scopes, delete token.json.
 const SCOPES = [
@@ -37,7 +35,6 @@ function authorize(credentials) {
   // Check if we have previously stored a token.
     fs.readFile(TOKEN_PATH, (err, token) => {
         if (err) return getAccessToken(oAuth2Client);
-        oAuth2Client.setCredentials(JSON.parse(token));
     });
 }
 
@@ -72,87 +69,7 @@ function getAccessToken(oAuth2Client, callback) {
     });
 }
 
-
-// Get the timeslots for the day
-// timeslots?year=yyyy&month=mm&day=dd
-app.get('/timeslots', (req, res) => {
-    const { year, month, day } = req.query
-    getTimeslotsForDay(oAuth2Client, year, month, day)
-    .then(function(timeslots) {
-        res.status(200).send(timeslots)
-    })
-})
-
-
-// Get the availble days for the month
-// /days?year=yyyy&month=mm
-app.get('/days', async (req, res) => {
-    const { year, month } = req.query
-    // date will be the highest date of the month, i.e. Janurary will be 31
-    let date = new Date(year, month, 0).getDate();
-    let message = {
-        "success": true,
-        "days": []
-    }
-
-    // For each day of the month get the avaible timeslots for the day
-    // If the day does not have any avaible timeslots set hasTimeSlots to false
-    for(let i = 0; i < date; i++){
-        await getTimeslotsForDay(oAuth2Client, year, month, i + 1)
-        .then(function(timeslots) {
-            if (timeslots.timeslots.length < 1 ){
-                message.days.push({"day": i + 1, "hasTimeSlots": false})
-            } else {
-                message.days.push({"day": i + 1, "hasTimeSlots": true})
-            }
-        })
-    }
-    res.status(200).send(message)
-})
-
-
-// Book and appointment
-// /book?year=yyyy&month=MM&day=dd&hour=hh&minute=mm
-app.post('/book', async (req, res) => {
-    const { year, month, day, hour, minute } = req.query
-
-    // Validate the params
-    if (await validateBookAppointment(year, month, day, hour, minute)) {
-        res.status(400).send(validateBookAppointment(year, month, day, hour, minute))
-        return
-    }
-    
-    // Check if the timeslot is free
-    const date = new Date(Date.UTC(year, month - 1, day, hour, minute))
-    let bookingAlreadyExists = true
-    await getTimeslotsForDay(oAuth2Client, year, month, day)
-    .then(function(timeslots) {
-        for(let i = 0; i < timeslots.timeslots.length; i++){
-            if (timeslots.timeslots[i].startTime === date.toISOString()){
-            bookingAlreadyExists = false
-            }
-        }
-    })
-    // Sends an error if the appointment time has already been booked
-    if (bookingAlreadyExists === true){
-        res.status(400).send(
-            {
-                "success": false,
-                "message": "Invalid time slot"
-            }
-        )
-        return
-    } else {
-        bookAppointment(oAuth2Client, year, month, day, hour, minute)
-        .then(function(message) {
-            res.status(200).send(message)
-        })
-    }
-})
-
-
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });
