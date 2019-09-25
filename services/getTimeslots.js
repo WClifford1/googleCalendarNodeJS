@@ -1,7 +1,7 @@
 const {google} = require('googleapis');
 const appt = require('../utils/appointmentTimes')
 
-module.exports = async function getTimeslotsForDay(auth, year, month, day) {
+module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
         const appointmentTimes = await appt()
 
         appointmentTimes.map(x => {
@@ -9,25 +9,25 @@ module.exports = async function getTimeslotsForDay(auth, year, month, day) {
             x.endTime = new Date(Date.UTC(year, month - 1, day, x.endTime.hours, x.endTime.minutes)) 
         })
 
-        let timeslots = {
+        let timeSlots = {
             success: false,
-            timeslots: appointmentTimes
+            timeSlots: appointmentTimes
         }
 
         let events = await getEvents(auth, year, month, day)
         if (events.length > 0){
-            timeslots.success = true
+            timeSlots.success = true
             for(let i = 0; i < events.length; i++){
-                for(let j = 0; j < timeslots.timeslots.length; j++){
+                for(let j = 0; j < timeSlots.timeSlots.length; j++){
                 let time = new Date(events[i].start.dateTime)
-                    if (timeslots.timeslots[j].startTime.toISOString() === time.toISOString()){
-                        timeslots.timeslots.splice(j, 1)
+                    if (timeSlots.timeSlots[j].startTime.toISOString() === time.toISOString()){
+                        timeSlots.timeSlots.splice(j, 1)
                     }
                 }
             }
-            return timeslots
+            return timeSlots
         } else {
-            return timeslots
+            return timeSlots
         }
 };
 

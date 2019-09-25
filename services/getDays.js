@@ -10,7 +10,7 @@ module.exports = async function getDays(auth, year, month) {
         const result = []
         const lastDayOfMonth = new Date(year, month, 0).getDate()
 
-        let events = await listEvents(auth, year, month)
+        let events = await listEventsForMonth(auth, year, month)
 
         for(let i = 0; i < events.length; i++){
             booked.push(new Date(events[i].start.dateTime).toISOString())
@@ -54,12 +54,12 @@ module.exports = async function getDays(auth, year, month) {
 };
 
 
-async function listEvents(auth, year, month) {
+async function listEventsForMonth(auth, year, month) {
     const calendar = google.calendar({version: 'v3', auth});
     try {
         let events = await calendar.events.list({
             calendarId: 'primary',
-            timeMin: new Date(Date.UTC(year, month - 1, 1, 00, 00)).toISOString(),
+            timeMin: new Date(Date.UTC(year - 1, month - 1, 1, 00, 00)).toISOString(),
             timeMax: new Date(Date.UTC(year, month, 0, 23, 59)).toISOString(),
             singleEvents: true,
             orderBy: 'startTime',

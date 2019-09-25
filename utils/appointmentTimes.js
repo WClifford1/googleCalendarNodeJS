@@ -1,4 +1,3 @@
-
 function createAppointmentTimes(){
     let start = new Date();
     let end = new Date()
