@@ -13,6 +13,7 @@ module.exports = async function bookAppointment(year, month, day, hour, minute) 
         return validateBookAppointment(year, month, day, hour, minute)
     }
     const oAuth2Client = await auth()
+    
     // Check if the timeslot is free
     const date = new Date(Date.UTC(year, month - 1, day, hour, minute))
     let bookingAlreadyExists = true

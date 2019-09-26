@@ -83,9 +83,8 @@ module.exports = async function getDays(auth, year, month) {
 
 
 async function listEventsForMonth(auth, year, month) {
-
+    
     const calendar = google.calendar({version: 'v3', auth});
-
     try {
             // Only need to retrieve appointments that are more than 24 hours in the future
             const twentyFourHoursFuture = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/)
