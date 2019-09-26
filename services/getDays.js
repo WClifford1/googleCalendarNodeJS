@@ -1,5 +1,5 @@
 const {google} = require('googleapis');
-const appt = require('../utils/appointmentTimes')
+const appt = require('./appointmentTimes')
 
 module.exports = async function getDays(auth, year, month) {
     try {

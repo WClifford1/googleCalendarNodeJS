@@ -1,6 +1,6 @@
 const {google} = require('googleapis');
 const getTimeslots = require('./getTimeslots')
-const validateBookAppointment = require('../utils/validateBookAppointment')
+const validateBookAppointment = require('./validateBookAppointment')
 const auth = require('../auth')
 
 module.exports = async function bookAppointment(year, month, day, hour, minute) {
