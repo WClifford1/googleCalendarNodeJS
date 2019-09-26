@@ -3,6 +3,13 @@ const appt = require('./appointmentTimes')
 
 module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
 
+    const date = new Date(Date.UTC(year, month - 1, day))
+    const dayOfWeek = parseInt(date.getUTCDay())
+    let weekday = true
+    if (dayOfWeek === 6 || dayOfWeek === 0) {
+        weekday = false
+    }
+
     // Call the calendar to return the day's events
     const events = await getEvents(auth, year, month, day)
     
@@ -11,7 +18,8 @@ module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
         timeSlots: []
     }
 
-    if (result.success) {
+    // Only get timeslots for weekdays
+    if (result.success && weekday) {
         // Get the appointment times
         const appointmentTimes = await appt()
 
@@ -21,8 +29,17 @@ module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
             x.endTime = new Date(Date.UTC(year, month - 1, day, x.endTime.hours, x.endTime.minutes)) 
         })
 
+        // Remove timeslots that are not more than 24 hours in advance 
+        const twentyFourHoursFuture = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/)
+        let updatedAppointmentTimes = []
+        for(let i = 0; i < appointmentTimes.length; i++){
+            if (new Date(appointmentTimes[i].startTime) >= twentyFourHoursFuture){
+                updatedAppointmentTimes.push(appointmentTimes[i])
+            }
+        }
+
         // Create timeslots for each appointment time
-        result.timeSlots = appointmentTimes
+        result.timeSlots = updatedAppointmentTimes
 
         // Remove any timeslots that already have appointments booked
         if (events.events.length > 0){

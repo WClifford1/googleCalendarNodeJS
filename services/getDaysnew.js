@@ -48,10 +48,9 @@ module.exports = async function getDays(auth, year, month) {
         // Remove any duplicate dates. The resulting uniq array is all dates that currently have available timeslots.
         const uniq = [...new Set(difference)]
 
-
         // If checking the current month, all days prior to 24 hours in the future will not have timeslots
-        if (cutOffMonth == parseInt(month) && cutOffYear === year || cutOffMonth === 13 && month === 1 && cutOffYear === year){
-            cutOffDate = twentyFourHoursFuture.getUTCDate()
+        if (cutOffMonth === month && cutOffYear === year || cutOffMonth === 13 && month === 1 && cutOffYear === year){
+            cutOffDate = parseInt(twentyFourHoursFuture.getUTCDate())
         }
 
         // Check each day of the month against the uniq array
@@ -84,15 +83,9 @@ module.exports = async function getDays(auth, year, month) {
 async function listEventsForMonth(auth, year, month) {
     const calendar = google.calendar({version: 'v3', auth});
     try {
-        // Only need to retrieve appointments that are more than 24 hours in the future
-        const twentyFourHoursFuture = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/)
-        let firstApp = new Date(Date.UTC(year - 1, month - 1, 1, 00, 00))
-        if (firstApp < twentyFourHoursFuture){
-            firstApp = twentyFourHoursFuture
-        }
         let events = await calendar.events.list({
             calendarId: 'primary',
-            timeMin: firstApp.toISOString(),
+            timeMin: new Date(Date.UTC(year - 1, month - 1, 1, 00, 00)).toISOString(),
             timeMax: new Date(Date.UTC(year, month, 0, 23, 59)).toISOString(),
             singleEvents: true,
             orderBy: 'startTime',
