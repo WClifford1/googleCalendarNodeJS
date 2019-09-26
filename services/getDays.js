@@ -9,15 +9,15 @@ module.exports = async function getDays(auth, year, month) {
         const result = []
         const lastDayOfMonth = new Date(year, month, 0).getDate()
 
-        // Let events equal an array of the month's events that are currently stored in the calendar
+        // Call the calendar to return the month's events
         let events = await listEventsForMonth(auth, year, month)
 
-        // Pushes the date string of the month's events into the booked array
+        // Push the date string of the month's events into the booked array
         for(let i = 0; i < events.length; i++){
             booked.push(new Date(events[i].start.dateTime).toISOString())
         }
         
-        // Pushes the date string of all the months appointment timeslots into the appointments array
+        // Push the date string of all the months appointment timeslots into the appointments array
         for(let j = 0; j < lastDayOfMonth; j++){
             for(let i = 0; i < 12; i++){
                 appointments.push(new Date(Date.UTC(year, month - 1, j + 1, appointmentTimes[i].startTime.hours, appointmentTimes[i].startTime.minutes)).toISOString())
@@ -25,18 +25,18 @@ module.exports = async function getDays(auth, year, month) {
             result[j] = { "day": j + 1,  "hasTimeSlots": false }
         }
 
-        // Removes the booked appointment date strings from the appointments array
+        // Remove the booked appointments the appointments array
         let difference = appointments.filter(n => !booked.includes(n))
 
-        // Changes date strings in difference array to UTC date
+        // Change date strings in difference array to UTC date, eg 21, 22, 23...
         difference = difference.map(x =>
             x = new Date(x).getUTCDate()
         )
 
-        // Removes any duplicate dates. The resulting uniq array is all dates that have available timeslots.
+        // Remove any duplicate dates. The resulting uniq array is all dates that currently have available timeslots.
         const uniq = [...new Set(difference)]
 
-        // Checks each day of the month against the uniq array
+        // Check each day of the month against the uniq array
         // If a date is in the uniq array then the date's hasTimeSlots = true
         for (let i = 0; i < lastDayOfMonth; i++){
             for(let j = 0; j < uniq.length; j++){

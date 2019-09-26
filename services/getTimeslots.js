@@ -3,6 +3,7 @@ const appt = require('./appointmentTimes')
 
 module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
 
+    // Call the calendar to return the day's events
     const events = await getEvents(auth, year, month, day)
     
     let result = {
@@ -11,16 +12,19 @@ module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
     }
 
     if (result.success) {
-
+        // Get the appointment times
         const appointmentTimes = await appt()
-    
+
+        // Reformat the appointment times to date objects using the params
         appointmentTimes.map(x => {
             x.startTime = new Date(Date.UTC(year, month - 1, day, x.startTime.hours, x.startTime.minutes)), 
             x.endTime = new Date(Date.UTC(year, month - 1, day, x.endTime.hours, x.endTime.minutes)) 
         })
 
+        // Create timeslots for each appointment time
         result.timeSlots = appointmentTimes
 
+        // Remove any timeslots that already have appointments booked
         if (events.events.length > 0){
             for(let i = 0; i < events.events.length; i++){
                 for(let j = 0; j < result.timeSlots.length; j++){
