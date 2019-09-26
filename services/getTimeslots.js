@@ -14,8 +14,7 @@ module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
     const events = await getEvents(auth, year, month, day)
     
     let result = {
-        success: events.success,
-        timeSlots: []
+        success: events.success
     }
 
     // Only get timeslots for weekdays
@@ -54,6 +53,7 @@ module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
         }
         return result
     } else {
+        result.message = "Could not connect to API"
         return result
     }
 };

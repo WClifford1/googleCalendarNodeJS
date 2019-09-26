@@ -54,9 +54,10 @@ module.exports = async function getDays(auth, year, month) {
             cutOffDate = twentyFourHoursFuture.getUTCDate()
         }
 
+
         // Check each day of the month against the uniq array
         // If a date is in the uniq array then the date's hasTimeSlots = true
-        if (year >= cutOffYear){
+        if (year === cutOffYear && parseInt(month) >= cutOffMonth || year > cutOffYear){
             for (let i = cutOffDate; i < lastDayOfMonth; i++){
                 for(let j = 0; j < uniq.length; j++){
                     if (result[i].day === uniq[j]){
@@ -82,24 +83,29 @@ module.exports = async function getDays(auth, year, month) {
 
 
 async function listEventsForMonth(auth, year, month) {
+
     const calendar = google.calendar({version: 'v3', auth});
+
     try {
-        // Only need to retrieve appointments that are more than 24 hours in the future
-        const twentyFourHoursFuture = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/)
-        let firstApp = new Date(Date.UTC(year - 1, month - 1, 1, 00, 00))
-        if (firstApp < twentyFourHoursFuture){
-            firstApp = twentyFourHoursFuture
-        }
-        let events = await calendar.events.list({
-            calendarId: 'primary',
-            timeMin: firstApp.toISOString(),
-            timeMax: new Date(Date.UTC(year, month, 0, 23, 59)).toISOString(),
-            singleEvents: true,
-            orderBy: 'startTime',
-            timeZone: "UTC"
-        })
-    return events.data.items
+            // Only need to retrieve appointments that are more than 24 hours in the future
+            const twentyFourHoursFuture = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/)
+            let firstApp = new Date(Date.UTC(year - 1, month - 1, 1, 00, 00))
+            if (firstApp < twentyFourHoursFuture){
+                firstApp = twentyFourHoursFuture
+            }
+            let events = await calendar.events.list({
+                calendarId: 'primary',
+                timeMin: firstApp.toISOString(),
+                timeMax: new Date(Date.UTC(year, month, 0, 23, 59)).toISOString(),
+                singleEvents: true,
+                orderBy: 'startTime',
+                timeZone: "UTC"
+            })
+        return events.data.items
     } catch {
-        return []
+        return {
+            sucess: false,
+            message: "Could not connect to API"
+        }
     }
 }
