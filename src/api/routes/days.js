@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const getDays = require('../../../services/getDays')
-const auth = require('../../../auth')
+const auth = require('../../../services/auth')
 
 // Get the availble days for the month
 // /days?year=yyyy&month=mm

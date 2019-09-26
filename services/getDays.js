@@ -20,7 +20,15 @@ module.exports = async function getDays(auth, year, month) {
         // Push the date string of all the months appointment timeslots into the appointments array
         for(let j = 0; j < lastDayOfMonth; j++){
             for(let i = 0; i < 12; i++){
-                appointments.push(new Date(Date.UTC(year, month - 1, j + 1, appointmentTimes[i].startTime.hours, appointmentTimes[i].startTime.minutes)).toISOString())
+                appointments.push(new Date(
+                    Date.UTC(
+                        year,
+                        month - 1,
+                        j + 1,
+                        appointmentTimes[i].startTime.hours,
+                        appointmentTimes[i].startTime.minutes
+                    )
+                ).toISOString())
             }
             result[j] = { "day": j + 1,  "hasTimeSlots": false }
         }
@@ -51,6 +59,7 @@ module.exports = async function getDays(auth, year, month) {
             "success": true,
             days: result
         }
+        
     } catch(e) {
         return { 
             "success": false,

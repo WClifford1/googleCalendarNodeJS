@@ -1,3 +1,7 @@
+// Generate appointment times
+// Generate 12 x 40 minute timeslots between 9am and 6pm
+// Appointments have a 5 minute break between
+// Returns an object with the start and end time of each appointment
 function createAppointmentTimes(){
     let start = new Date();
     let end = new Date()

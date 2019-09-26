@@ -1,14 +1,13 @@
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
-const credentials = require('./credentials.json')
+const credentials = require('../credentials.json')
 // If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
+const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
-const TOKEN_PATH = 'token.json';
-const token = './token.json'
+const TOKEN_PATH = './token.json';
 
 module.exports = async function returnAccessToken(){
     // Load client secrets from a local file.
@@ -26,20 +25,17 @@ module.exports = async function returnAccessToken(){
 
 function checkTokenExists(oAuth2Client){
     // Check if we have previously stored a token.
-    try {
-        if (fs.existsSync(token)) {
-        //file exists
-        const tokenn = require('./token.json')
+        if (fs.existsSync('./token.json')) {
+        // Token exists
+        const tokenn = require('../token.json')
         oAuth2Client.credentials = tokenn
         return oAuth2Client
         } else {
             getAccessToken(oAuth2Client);
         }
-    } catch(err) {
-        console.error(err)
-    }
 }
 
+// Token does not currently exist
 function getAccessToken(oAuth2Client) {
     const authUrl = oAuth2Client.generateAuthUrl({
         access_type: 'offline',

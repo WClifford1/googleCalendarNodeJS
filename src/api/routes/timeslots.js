@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const getTimeslots = require('../../../services/getTimeslots')
-const auth = require('../../../auth')
+const auth = require('../../../services/auth')
 
 // Get the timeslots for the day
 // timeslots?year=yyyy&month=mm&day=dd

@@ -1,7 +1,7 @@
 const express = require("express")
 const app = express();
-const auth = require('./auth')
-require('./src/api/index')(app)
+const auth = require('../services/auth')
+require('./api/index')(app)
 
 // Get the token immediately if it does not already exist
 auth()
