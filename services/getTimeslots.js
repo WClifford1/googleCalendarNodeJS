@@ -2,34 +2,42 @@ const {google} = require('googleapis');
 const appt = require('../utils/appointmentTimes')
 
 module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
-        const appointmentTimes = await appt()
 
+    const events = await getEvents(auth, year, month, day)
+    
+    let result = {
+        success: events.success,
+        timeSlots: []
+    }
+
+    if (result.success) {
+
+        const appointmentTimes = await appt()
+    
         appointmentTimes.map(x => {
             x.startTime = new Date(Date.UTC(year, month - 1, day, x.startTime.hours, x.startTime.minutes)), 
             x.endTime = new Date(Date.UTC(year, month - 1, day, x.endTime.hours, x.endTime.minutes)) 
         })
 
-        let timeSlots = {
-            success: false,
-            timeSlots: appointmentTimes
-        }
+        result.timeSlots = appointmentTimes
 
-        let events = await getEvents(auth, year, month, day)
-        if (events.length > 0){
-            timeSlots.success = true
-            for(let i = 0; i < events.length; i++){
-                for(let j = 0; j < timeSlots.timeSlots.length; j++){
-                let time = new Date(events[i].start.dateTime)
-                    if (timeSlots.timeSlots[j].startTime.toISOString() === time.toISOString()){
-                        timeSlots.timeSlots.splice(j, 1)
+        if (events.events.length > 0){
+            for(let i = 0; i < events.events.length; i++){
+                for(let j = 0; j < result.timeSlots.length; j++){
+                let time = new Date(events.events[i].start.dateTime)
+                    if (result.timeSlots[j].startTime.toISOString() === time.toISOString()){
+                        result.timeSlots.splice(j, 1)
                     }
                 }
             }
-            return timeSlots
-        } else {
-            return timeSlots
         }
+        return result
+    } else {
+        return result
+    }
 };
+
+
 
 
 async function getEvents(auth, year, month, day){
@@ -44,8 +52,14 @@ async function getEvents(auth, year, month, day){
             timeMax: `${year}-${month}-${day}T23:59:00.000Z`,
             timeZone: "UTC"
         })
-        return events.data.items
-    } catch {
-        return []
+        return ({
+            success: true,
+            events: events.data.items
+        })
+    } catch(e) {
+        return ({
+            success: false,
+            message: e
+        })
     }
 }

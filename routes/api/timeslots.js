@@ -25,9 +25,16 @@ authorize(credentials)
 // Get the timeslots for the day
 // timeslots?year=yyyy&month=mm&day=dd
 router.get('/', async (req, res) => {
-    const { year, month, day } = req.query
-    const result = await getTimeslots(oAuth2Client, year, month, day)
-    res.status(200).send(result)
+    try {
+        const { year, month, day } = req.query
+        const result = await getTimeslots(oAuth2Client, year, month, day)
+        res.status(200).send(result)
+    } catch(e) {
+        res.status(400).send({
+            "success": false,
+            "message": e
+        })
+    }
 })
 
 module.exports = router
