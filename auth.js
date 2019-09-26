@@ -8,8 +8,7 @@ const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
 // created automatically when the authorization flow completes for the first
 // time.
 const TOKEN_PATH = 'token.json';
-// const token = require('./token.json')
-
+const token = './token.json'
 
 module.exports = async function returnAccessToken(){
     // Load client secrets from a local file.
@@ -19,20 +18,26 @@ module.exports = async function returnAccessToken(){
         client_id,
         client_secret,
         redirect_uris[0]
-    );
-    // Check if we have previously stored a token.
-    fs.readFile(TOKEN_PATH, (err, token) => {
-        if (err){
-            return getAccessToken(oAuth2Client);
-        }
-        console.log(oAuth2Client)
-        oAuth2Client.setCredentials(JSON.parse(token));
-    });
-    oAuth2Client.credentials = token
-    console.log(oAuth2Client)
-    return oAuth2Client;
+        );
+
+    const token = await checkTokenExists(oAuth2Client);
+    return token
 }
 
+function checkTokenExists(oAuth2Client){
+    // Check if we have previously stored a token.
+    try {
+        if (fs.existsSync(token)) {
+        //file exists
+        const tokenn = require('./token.json')
+        oAuth2Client.credentials = tokenn
+        return oAuth2Client
+        }
+    } catch(err) {
+        console.error(err)
+        getAccessToken(oAuth2Client);
+    }
+}
 
 function getAccessToken(oAuth2Client) {
     const authUrl = oAuth2Client.generateAuthUrl({

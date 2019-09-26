@@ -1,9 +1,9 @@
 const {google} = require('googleapis');
 const getTimeslots = require('./getTimeslots')
 const validateBookAppointment = require('../utils/validateBookAppointment')
+const auth = require('../auth')
 
-module.exports = async function bookAppointment(auth, year, month, day, hour, minute) {
-    
+module.exports = async function bookAppointment(year, month, day, hour, minute) {
     // Call validateBookAppointment() which checks:
     // Appointment must not be in the past
     // Appointment must not be less than 24 hours in the future
@@ -12,12 +12,11 @@ module.exports = async function bookAppointment(auth, year, month, day, hour, mi
     if (await validateBookAppointment(year, month, day, hour, minute)) {
         return validateBookAppointment(year, month, day, hour, minute)
     }
-
+    const oAuth2Client = await auth()
     // Check if the timeslot is free
     const date = new Date(Date.UTC(year, month - 1, day, hour, minute))
     let bookingAlreadyExists = true
     let timeSlots = await getTimeslots(oAuth2Client, year, month, day)
-
     for(let i = 0; i < timeSlots.timeSlots.length; i++){
         if (timeSlots.timeSlots[i].startTime.toISOString() === date.toISOString()){
         bookingAlreadyExists = false
@@ -47,10 +46,10 @@ module.exports = async function bookAppointment(auth, year, month, day, hour, mi
                     dateTime: finishTime.toISOString()
                 }
             }
-            const calendar = google.calendar({version: 'v3', auth});
+            const calendar = google.calendar({version: 'v3', oAuth2Client});
             await calendar.events.insert(
                     {
-                        auth: auth,
+                        auth: oAuth2Client,
                         calendarId: "primary",
                         resource: event
                     })

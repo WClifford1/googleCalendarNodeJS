@@ -1,15 +1,15 @@
 const express = require('express')
 const router = express.Router()
-const getTimeslots = require('../../../services/getTimeslots')
+const getDays = require('../../../services/getDays')
 const auth = require('../../../auth')
 
-// Get the timeslots for the day
-// timeslots?year=yyyy&month=mm&day=dd
+// Get the availble days for the month
+// /days?year=yyyy&month=mm
 router.get('/', async (req, res) => {
     try {
-        const { year, month, day } = req.query
+        const { year, month } = req.query
         const oAuth2Client = await auth()
-        const result = await getTimeslots(oAuth2Client, year, month, day)
+        const result = await getDays(oAuth2Client, year, month)
         res.status(200).send(result)
     } catch(e) {
         res.status(400).send({

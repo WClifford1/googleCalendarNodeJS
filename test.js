@@ -1,8 +1,6 @@
-const auth = require('./auth')
+const fs = require('fs');
 
-async function test(){
-    const token = await auth()
-    // console.log(token)
-}
+fs.exists('./hi.json', (exists) => {
+    console.log(exists ? 'it\'s there' : 'no passwd!');
+});
 
-test()
