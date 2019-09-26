@@ -38,8 +38,6 @@ module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
 };
 
 
-
-
 async function getEvents(auth, year, month, day){
     const calendar = google.calendar({ version: "v3", auth });
     try {

@@ -20,6 +20,7 @@ function authorize(credentials) {
         }
     });
 }
+
 authorize(credentials)
 
 // Get the availble days for the month
