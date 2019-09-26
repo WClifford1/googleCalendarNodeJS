@@ -32,10 +32,11 @@ function checkTokenExists(oAuth2Client){
         const tokenn = require('./token.json')
         oAuth2Client.credentials = tokenn
         return oAuth2Client
+        } else {
+            getAccessToken(oAuth2Client);
         }
     } catch(err) {
         console.error(err)
-        getAccessToken(oAuth2Client);
     }
 }
 
