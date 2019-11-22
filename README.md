@@ -40,6 +40,8 @@ Displays weather or not all days of the month currently have available timeslots
 Books an appointment by creating an event in the calendar, provided that the timeslot is available. The booking will now be in your Google Calendar.
 
 <p align="center">
-    <img src="./screenshots/screenshot5.png" width="45%" />
-    <img src="./screenshots/screenshot6.png" width="45%" />
+    <img src="./screenshots/screenshot5.png" />
+</p>
+<p align="center">
+    <img src="./screenshots/screenshot6.png" />
 </p>
