@@ -1,4 +1,4 @@
-## 2hats NodeJS Assessment by William Clifford
+## Google Calendar API Booking System
 
 ## `npm i and node .`
 
