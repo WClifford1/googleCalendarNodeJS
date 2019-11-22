@@ -1,4 +1,6 @@
-const {google} = require('googleapis');
+const {
+    google
+} = require('googleapis');
 const appt = require('./appointmentTimes')
 
 module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
@@ -7,12 +9,15 @@ module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
     const dayOfWeek = parseInt(date.getUTCDay())
     let weekday = true
     if (dayOfWeek === 6 || dayOfWeek === 0) {
-        weekday = false
+        return ({
+            success: false,
+            message: "Can only view timeslots for weekdays"
+        })
     }
 
     // Call the calendar to return the day's events
     const events = await getEvents(auth, year, month, day)
-    
+
     let result = {
         success: events.success
     }
@@ -24,15 +29,15 @@ module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
 
         // Reformat the appointment times to date objects using the params
         appointmentTimes.map(x => {
-            x.startTime = new Date(Date.UTC(year, month - 1, day, x.startTime.hours, x.startTime.minutes)), 
-            x.endTime = new Date(Date.UTC(year, month - 1, day, x.endTime.hours, x.endTime.minutes)) 
+            x.startTime = new Date(Date.UTC(year, month - 1, day, x.startTime.hours, x.startTime.minutes)),
+                x.endTime = new Date(Date.UTC(year, month - 1, day, x.endTime.hours, x.endTime.minutes))
         })
 
         // Remove timeslots that are not more than 24 hours in advance 
-        const twentyFourHoursFuture = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/)
+        const twentyFourHoursFuture = new Date(Date.now() + 1000 /*sec*/ * 60 /*min*/ * 60 /*hour*/ * 24 /*day*/ )
         let updatedAppointmentTimes = []
-        for(let i = 0; i < appointmentTimes.length; i++){
-            if (new Date(appointmentTimes[i].startTime) >= twentyFourHoursFuture){
+        for (let i = 0; i < appointmentTimes.length; i++) {
+            if (new Date(appointmentTimes[i].startTime) >= twentyFourHoursFuture) {
                 updatedAppointmentTimes.push(appointmentTimes[i])
             }
         }
@@ -41,11 +46,11 @@ module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
         result.timeSlots = updatedAppointmentTimes
 
         // Remove any timeslots that already have appointments booked
-        if (events.events.length > 0){
-            for(let i = 0; i < events.events.length; i++){
-                for(let j = 0; j < result.timeSlots.length; j++){
-                let time = new Date(events.events[i].start.dateTime)
-                    if (result.timeSlots[j].startTime.toISOString() === time.toISOString()){
+        if (events.events.length > 0) {
+            for (let i = 0; i < events.events.length; i++) {
+                for (let j = 0; j < result.timeSlots.length; j++) {
+                    let time = new Date(events.events[i].start.dateTime)
+                    if (result.timeSlots[j].startTime.toISOString() === time.toISOString()) {
                         result.timeSlots.splice(j, 1)
                     }
                 }
@@ -59,11 +64,13 @@ module.exports = async function gettimeSlotsForDay(auth, year, month, day) {
 };
 
 
-async function getEvents(auth, year, month, day){
-    const calendar = google.calendar({ version: "v3", auth });
+async function getEvents(auth, year, month, day) {
+    const calendar = google.calendar({
+        version: "v3",
+        auth
+    });
     try {
-        let events = await calendar.events.list(
-        {
+        let events = await calendar.events.list({
             calendarId: "primary",
             singleEvents: true,
             orderBy: "startTime",
@@ -75,7 +82,7 @@ async function getEvents(auth, year, month, day){
             success: true,
             events: events.data.items
         })
-    } catch(e) {
+    } catch (e) {
         return ({
             success: false,
             message: e
