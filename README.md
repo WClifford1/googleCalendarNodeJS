@@ -3,8 +3,8 @@
 ### Directions:
 Step 1: go to https://developers.google.com/calendar/quickstart/nodejs, select 'Enable the Google Calendar API' and click 'Download Client Configuration'. This will download credentials.json - save this into the project directory
 <p>
-    <img src="./screenshots/screenshot1.png" width="34%" height="300" />
-    <img src="./screenshots/screenshot2.png" width="34%" height="300" />
+    <img src="./screenshots/screenshot1.png" width="50%" height="350" />
+    <img src="./screenshots/screenshot2.png" width="50%" height="350" />
 </p>
 
 ### `Step 2: npm i and node .`
